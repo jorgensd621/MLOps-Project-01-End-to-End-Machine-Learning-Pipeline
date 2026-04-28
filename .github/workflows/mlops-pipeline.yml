@@ -26,28 +26,23 @@ jobs:
         pip install -r requirements.txt
         pip install "dvc[s3]"
 
-    - name: Configure DVC + MLflow + Run Pipeline
+    - name: Configure DVC and Run Pipeline
       env:
         DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
-        MLFLOW_TRACKING_URI: https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.mlflow
-        MLFLOW_TRACKING_USERNAME: jorgensd621
-        MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
       run: |
         rm -f .dvc/config .dvc/config.local
 
-        # Configure DVC
         dvc remote add origin https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.dvc --local
         dvc remote modify origin --local auth basic
         dvc remote modify origin --local user jorgensd621
         dvc remote modify origin --local password "$DAGSHUB_TOKEN"
         dvc remote default origin
 
-        # Ensure data
         mkdir -p data/raw
         if [ ! -s data/raw/data.csv ]; then
           curl -o data/raw/data.csv https://raw.githubusercontent.com/npradaschnor/Pima-Indians-Diabetes-Dataset/master/diabetes.csv
           dvc add data/raw/data.csv
         fi
 
-        # Run full pipeline
+        # Run pipeline (MLflow is optional in CI)
         dvc repro --force
