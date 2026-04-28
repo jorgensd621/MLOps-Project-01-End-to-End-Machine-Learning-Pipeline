@@ -1,5 +1,4 @@
 dvc
-dagshub
 mlflow
 scikit-learn
 pandas

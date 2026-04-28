@@ -31,7 +31,7 @@ jobs:
       run: |
         rm -f .dvc/config .dvc/config.local
 
-        # Create .env file for MLflow (this is the reliable way in CI)
+        # Create .env file explicitly (this is what makes MLflow work in CI)
         cat > .env << EOT
         MLFLOW_TRACKING_URI=https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.mlflow
         MLFLOW_TRACKING_USERNAME=jorgensd621
@@ -52,5 +52,5 @@ jobs:
           dvc add data/raw/data.csv
         fi
 
-        # Run full pipeline
+        # Run pipeline
         dvc repro --force

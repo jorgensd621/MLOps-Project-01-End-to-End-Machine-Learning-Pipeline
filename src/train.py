@@ -1,9 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-import dagshub
-dagshub.init()   # This handles everything for DagsHub
-
 import os
 import pickle
 import pandas as pd
@@ -12,6 +9,10 @@ from sklearn.ensemble import RandomForestClassifier
 import mlflow
 import mlflow.sklearn
 from sklearn.metrics import accuracy_score
+
+# Explicit MLflow setup
+mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
+mlflow.set_experiment("diabetes-classifier")
 
 def train(input_path, output_path, random_state, n_estimators, max_depth):
     data = pd.read_csv(input_path)
