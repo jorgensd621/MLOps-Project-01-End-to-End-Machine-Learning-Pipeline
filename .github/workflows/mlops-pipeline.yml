@@ -1,0 +1,45 @@
+name: MLOps Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  dvc-repro:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install "dvc[s3]"
+
+    - name: Configure DVC
+      run: |
+        dvc remote add origin s3://dvc --local
+        dvc remote modify origin --local endpointurl https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.s3
+        dvc remote modify origin --local access_key_id ${{ secrets.DAGSHUB_TOKEN }}
+        dvc remote modify origin --local secret_access_key ${{ secrets.DAGSHUB_TOKEN }}
+        dvc remote default origin
+
+    - name: Pull data
+      run: dvc pull
+
+    - name: Reproduce pipeline
+      run: dvc repro
+
+    - name: Push cache (if on main)
+      if: github.ref == 'refs/heads/main'
+      run: dvc push
