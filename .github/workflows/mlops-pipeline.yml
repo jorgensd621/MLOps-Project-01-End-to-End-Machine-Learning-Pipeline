@@ -26,20 +26,20 @@ jobs:
         pip install -r requirements.txt
         pip install "dvc[s3]"
 
-    - name: Configure DVC
+    - name: Configure DVC and Run Pipeline
+      env:
+        DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
       run: |
+        # Clean any old config
+        rm -f .dvc/config .dvc/config.local
+
+        # Configure DVC remote
         dvc remote add origin s3://dvc --local
         dvc remote modify origin --local endpointurl https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.s3
-        dvc remote modify origin --local access_key_id ${{ secrets.DAGSHUB_TOKEN }}
-        dvc remote modify origin --local secret_access_key ${{ secrets.DAGSHUB_TOKEN }}
+        dvc remote modify origin --local access_key_id "$DAGSHUB_TOKEN"
+        dvc remote modify origin --local secret_access_key "$DAGSHUB_TOKEN"
         dvc remote default origin
 
-    - name: Pull data
-      run: dvc pull
-
-    - name: Reproduce pipeline
-      run: dvc repro
-
-    - name: Push cache (if on main)
-      if: github.ref == 'refs/heads/main'
-      run: dvc push
+        # Run the pipeline
+        dvc pull
+        dvc repro
