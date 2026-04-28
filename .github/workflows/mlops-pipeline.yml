@@ -35,7 +35,7 @@ jobs:
         dvc remote add origin https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.dvc --local
         dvc remote modify origin --local auth basic
         dvc remote modify origin --local user jorgensd621
-        dvc remote modify origin --local password $DAGSHUB_TOKEN
+        dvc remote modify origin --local password "$DAGSHUB_TOKEN"
         dvc remote default origin
 
         dvc pull
