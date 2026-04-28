@@ -1,6 +1,7 @@
 dvc
 dagshub
-scikit-learn
 mlflow
-dvc-s3
+scikit-learn
+pandas
+pyyaml
 python-dotenv
