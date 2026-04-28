@@ -38,5 +38,6 @@ jobs:
         dvc remote modify origin --local password "$DAGSHUB_TOKEN"
         dvc remote default origin
 
-        dvc pull
-        dvc repro
+        # Regenerate everything in CI (no reliance on remote cache)
+        dvc pull --force || true
+        dvc repro --force
