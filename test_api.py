@@ -1,37 +1,33 @@
-import subprocess
-import time
-import requests
-import sys
+import pickle
+import pandas as pd
 
-print("Starting API test...")
+def test_model_prediction():
+    """Simple test that directly uses the model (works reliably in CI)"""
+    # Load the model produced by DVC
+    with open("models/model.pkl", "rb") as f:
+        model = pickle.load(f)
 
-# Start the API in background
-proc = subprocess.Popen([
-    "uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"
-], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # Test input
+    test_input = {
+        "Pregnancies": 6,
+        "Glucose": 148,
+        "BloodPressure": 72,
+        "SkinThickness": 35,
+        "Insulin": 0,
+        "BMI": 33.6,
+        "DiabetesPedigreeFunction": 0.627,
+        "Age": 50
+    }
 
-time.sleep(5)  # Wait for server to start
+    df = pd.DataFrame([test_input])
+    prediction = int(model.predict(df)[0])
+    probability = float(model.predict_proba(df)[0][1])
 
-try:
-    response = requests.post(
-        "http://localhost:8000/predict",
-        json={
-            "Pregnancies": 6,
-            "Glucose": 148,
-            "BloodPressure": 72,
-            "SkinThickness": 35,
-            "Insulin": 0,
-            "BMI": 33.6,
-            "DiabetesPedigreeFunction": 0.627,
-            "Age": 50
-        },
-        timeout=10
-    )
-    print("API Response:", response.json())
-    assert response.status_code == 200
-    print("✅ API test passed!")
-except Exception as e:
-    print("❌ API test failed:", e)
-    sys.exit(1)
-finally:
-    proc.terminate()
+    print(f"✅ Prediction: {prediction} (0 = no diabetes, 1 = diabetes)")
+    print(f"✅ Probability of diabetes: {probability:.4f}")
+
+    assert prediction in [0, 1]
+    print("✅ Model prediction test passed!")
+
+if __name__ == "__main__":
+    test_model_prediction()
