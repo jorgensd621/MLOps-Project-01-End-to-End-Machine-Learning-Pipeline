@@ -24,24 +24,18 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install "dvc[s3]" dagshub
+        pip install "dvc[s3]"
 
-    - name: Configure DVC + Run Pipeline
+    - name: Configure DVC and Run Pipeline
       env:
         DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
       run: |
-        # Use DagsHub helper for reliable auth
-        python -c "
-        import dagshub
-        dagshub.auth.add_credentials(token='${DAGSHUB_TOKEN}')
-        "
-
-        # Configure DVC
         rm -f .dvc/config .dvc/config.local
+
         dvc remote add origin https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.dvc --local
         dvc remote modify origin --local auth basic
         dvc remote modify origin --local user jorgensd621
-        dvc remote modify origin --local password ${DAGSHUB_TOKEN}
+        dvc remote modify origin --local password $DAGSHUB_TOKEN
         dvc remote default origin
 
         dvc pull
