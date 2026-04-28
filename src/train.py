@@ -10,7 +10,6 @@ import mlflow
 import mlflow.sklearn
 from sklearn.metrics import accuracy_score
 
-# MLflow only if credentials are present (local = full, CI = skip)
 if os.getenv("MLFLOW_TRACKING_URI"):
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
     mlflow.set_experiment("diabetes-classifier")
@@ -37,12 +36,14 @@ def train(input_path, output_path, random_state, n_estimators, max_depth):
     accuracy = accuracy_score(y_test, y_pred)
     print(f"INFO: Best Model Accuracy: {accuracy}")
 
+    # This line fixes the error in CI
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
     if os.getenv("MLFLOW_TRACKING_URI"):
         with mlflow.start_run() as run:
             mlflow.log_params(grid_search.best_params_)
             mlflow.log_metric("accuracy", accuracy)
             mlflow.sklearn.log_model(best_model, "model")
-            print(f"🏃 View run at: {mlflow.get_tracking_uri()}/#/experiments/0/runs/{run.info.run_id}")
 
     with open(output_path, "wb") as f:
         pickle.dump(best_model, f)
