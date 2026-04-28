@@ -25,12 +25,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Pipeline
+    - name: Configure DVC
       env:
         DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
       run: |
         rm -f .dvc/config .dvc/config.local
-
         dvc remote add origin https://dagshub.com/jorgensd621/MLOps-Project-01-End-to-End-Machine-Learning-Pipeline.dvc --local
         dvc remote modify origin --local auth basic
         dvc remote modify origin --local user jorgensd621
@@ -43,4 +42,8 @@ jobs:
           dvc add data/raw/data.csv
         fi
 
-        dvc repro --force
+    - name: Run DVC Pipeline
+      run: dvc repro --force
+
+    - name: Test FastAPI Service
+      run: python -m pytest test_api.py -q --tb=no

@@ -30,3 +30,10 @@ stages:
     - data/raw/data.csv
     - models/model.pkl
     - src/evaluate.py
+
+  api:
+    cmd: python -m pytest test_api.py -q --tb=no
+    deps:
+    - app.py
+    - models/model.pkl
+    - test_api.py
