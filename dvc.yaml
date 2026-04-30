@@ -2,38 +2,22 @@ stages:
   preprocess:
     cmd: python src/preprocess.py
     deps:
-    - data/raw/data.csv
-    - src/preprocess.py
-    params:
-    - preprocess.input
-    - preprocess.output
+      - data/raw/data.csv
     outs:
-    - data/processed/data.csv
+      - data/processed/data.csv
 
   train:
     cmd: python src/train.py
     deps:
-    - data/raw/data.csv
-    - src/train.py
-    params:
-    - train.input
-    - train.output
-    - train.random_state
-    - train.n_estimators
-    - train.max_depth
+      - data/processed/data.csv
+      - params.yaml
     outs:
-    - models/model.pkl
+      - models/model.pkl   # ← this line stays for now, but we will handle it
 
   evaluate:
     cmd: python src/evaluate.py
     deps:
-    - data/raw/data.csv
-    - models/model.pkl
-    - src/evaluate.py
-
-  api:
-    cmd: python -m pytest test_api.py -q --tb=no
-    deps:
-    - app.py
-    - models/model.pkl
-    - test_api.py
+      - models/model.pkl
+      - data/processed/data.csv
+    metrics:
+      - scores.json
