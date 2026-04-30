@@ -11,3 +11,6 @@ fastapi
 uvicorn[standard]
 pydantic
 pytest
+
+# MCP support (Model Context Protocol)
+fastapi-mcp
