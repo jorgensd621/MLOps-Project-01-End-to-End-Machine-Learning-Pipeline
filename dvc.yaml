@@ -11,8 +11,7 @@ stages:
     deps:
       - data/processed/data.csv
       - params.yaml
-    outs:
-      - models/model.pkl   # ← this line stays for now, but we will handle it
+    # model.pkl is now managed by Git only (no DVC conflict)
 
   evaluate:
     cmd: python src/evaluate.py
